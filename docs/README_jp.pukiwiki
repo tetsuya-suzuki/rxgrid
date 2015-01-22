@@ -1,0 +1,388 @@
+[[English page is here>Software/rxgrid]]
+
+rxgridは、RubyベースのXgrid用バッチ言語RuBLXの処理系です。
+XgridとはMac OS Xオペレーティングシステム用の分散並列計算環境です。そしてRubyは汎用のオブジェクト指向言語です。
+
+rxgridによって次のことができます。 
+-Xgridの標準的なXMLベースのバッチ言語ではなく、 Rubyベースのバッチ言語で書いた簡潔なバッチファイルを使って、ジョブを投入できます。
+-ジョブIDではなくジョブの論理名で、ジョブの管理ができます。
+-ARTスクリプトにコマンドライン引数を与えられます。
+
+この文書の以降の構成は次のようになっています。
+#contents
+
+この文書では、読者はXgrid用の標準的なXMLベースのバッチ言語、Xgrid用の標準的なクライアントプログラム, そしてRuby言語の基本を理解していることを仮定しています。
+
+* rxgrid : RuBLX用Xgridクライアントプログラム
+**ライセンス
+rxgridは [[the GNU General Public License (GPL) version 2>http://www.gnu.org/licenses/gpl.txt]]の下でで配布されています。 
+
+** 以前のバージョンからの変更点
+-ARTに対応しました。ARTスクリプトにコマンドライン引数を渡して実行できます。これはARTスクリプトの再利用性を高めます。
+-少しだけ簡略化された文法に対応しました。バッチファイル内で、引数リストを囲む角括弧('['と']')を省略できるようになりました。
+
+**インストール
++アーカイブファイル 'rxgrid_v1_0_0.zip'を次のリンクからダウンロードします。
+--[[rxgrid Ver. 1.0.0 (May 13, 2010)>http://www.tslab.se.shibaura-it.ac.jp/downloads/rxgrid/rxgrid_v1_0_0.zip]]
++そのアーカイブファイルを展開します。
+ % unzip rxgrid_v1_0_0.zip
++展開して得られたディレクトリを適切なパスへコピーします。次の例では /usr/local/　にコピーされます。
+ % sudo cp -r rxgrid_v1_0_0 /usr/local/
++必要ならコマンドサーチパスを更新してください。
+お使いのシェルがcsh/tcshの場合, 次のような一行を~/.cshrcに追加しておくとよいでしょう。
+  setenv PATH $PATH:/usr/local/rxgrid_v1_0_0/bin
+お使いのシェルがbashの場合, 次のような一行を~/.bash_profileに追加しておくとよいでしょう。
+  PATH=$PATH:/usr/local/rxgrid_v1_0_0/bin
+
+**使い方
+ rxgrid [-h[ostname] hostname] [-auth { Password | Kerberos }]
+       [-p[assword] password] [-xgrid xgrid-command]
+ rxgrid [-nosubmission] [-createbatchfiles] -job batch [-gid grid-identifier]
+           [-map mapfile] [-I directory] RuBLX-batch-file
+ rxgrid -job results [-map mapfile] [-id identifier] [-so stdout] [-se stderr] [-out outdir]
+ rxgrid -job {stop | suspend | resume | delete | specification | restart}
+          [-map mapfile] [-id identifier]
+ rxgrid -job list [-gid grid-identifier]
+ rxgrid -job attributes [-map mapfile] [-id identifier]
+ rxgrid -version
+ rxgrid -help
+
+オプションは基本的にxgridコマンドのオプションと互換性があります。
+- '-xgrid'オプションは、xgridコマンドの代わりにrxgridが使用するコマンドを指定します。
+--そのコマンドは環境変数RXGRID_XGRIDでも指定できます。
+- '-nosubmission'オプションをつけるとジョブを投入しません。
+- '-createbatchfiles'オプションを指定すると、XMLベースのバッチファイルがファイルとして出力されます。
+- '-map'オプションはマップファイルを指定します。 
+-- '-job batch' と共に使用される'-map'オプションは、 作成されるマップファイル名を指定します。
+- '-I'オプションはARTスクリプトのサーチパスを追加します。ARTスクリプトのサーチパスは環境変数RXGRID_ART_PATHでも追加できます。どちらも':'でディレクトリを区切ります。
+-- ARTスクリプトの探索順序は, -Iで追加したディレクトリ, 環境変数RXGRID_ART_PATHで指定したディレクトリ, rxgridと共にインストールされたARTスクリプト, カレントディレクトリの順です。
+- '-id'オプション
+-- '-map'オプションと共に使用される '-id'オプションはマップファイル中の論理ジョブ名を指定します。
+-- '-map'オプション無しの '-id'オプションはジョブIDを指定します。
+-'-job  results'と'-job attributes'には、'-id'オプションか'-map'オプションの少なくともどちらか一方が必要になります。
+
+* 使用例
+以下のバッチファイルの例を示します。インストールしたディレクトリ内にもバッチファイルの例があります。そちらも参照してください。
+** 例1
+図1のバッチファイルは、図２のファイル'bc_exp.txt'に書かれた式を計算プログラム'/usr/bin/bc'で計算するジョブを記述しています。 
+
+// Fig.1 
+ 01: file "bc_exp.txt" do 
+ 02:   agentPathName  "bc_exp.txt"
+ 03:   localPathName  "bc_exp.txt"
+ 04:   isExecutable  false
+ 05: end
+ 06: 
+ 07: task "bc" do 
+ 08:   command  "/usr/bin/bc"
+ 09:   arguments "-q", "bc_exp.txt"
+ 10:   refersTo  "bc_exp.txt"
+ 11: end
+ 12: 
+ 13: job "job1" do 
+ 14:   tasks  "bc"
+ 15: end
+ 
+           図1: RuBLXで記述したバッチファイル 'bc.rb'
+
+// Fig.2
+ 01: 1 + 2
+ 02: quit
+ 
+           図2: bcコマンドのスクリプトファイル'bc_exp.txt' 
+ 
+
+// Fig.3 
+ % rxgrid -h xgridcontroller -p pass -job batch bc.rb
+ 
+           図3:  rxgridによるジョブの投入
+
+図1のバッチファイルに記述されたジョブをrxgridで投入するには図３のようにします。rxgridコマンドのオプションは、xgridコマンドのオプションと互換性があります。
+
+// Fig.4 
+ 01: 381,job1
+ 
+           図4: 生成されたマップファイル 'bc_map.csv'
+ 
+rxgridコマンドは、ジョブの投入時にマップファイルを生成します。マップファイルとはジョブIDとジョブの論理名との対応を記録したファイルです。 図4の例では、ジョブID　381とジョブ論理名　job1が対応しています。
+
+ ケース(1) 
+ % rxgrid -h xgridcontroller -p pass -job results -id job1 -map bc_map.csv
+ 
+ ケース(2) 
+ % rxgrid -h xgridcontroller -p pass -job results -map bc_map.csv
+ 
+ ケース(3) 
+ % rxgrid -h xgridcontroller -p pass -job results -id 381
+ 
+           図5: 結果の回収 
+
+図５にジョブの実行結果の回収方法を３通り示します。結果を回収するには、'-id'オプションと'-map'オプションの少なくとも一方が必要になります。
+-ケース (1)の場合、 結果が回収されるジョブは'-id'オプションと'-map'オプションの両方で指定されています。 
+-もしケース(2)のように'-id'オプションが指定されていなければ、マップファイル中のすべてのジョブの結果が回収されます。
+-もしケース(3)のように'-map'オプションが指定されていなければ, ジョブIDで指定されたジョブの結果が回収されます。
+
+
+** 例2
+
+図６は、実行順序に依存関係のあるジョブを記述したバッチファイルの例です。そこでは３つのジョブ 'job0', 'job1'そして 'job2'が定義されています。
+- ジョブ'job0'はすでに投入されているジョブです。そのジョブIDは１２行目で、ジョブ論理名とマップファイルとの組で指定されています。
+-ジョブ'job1'はタスク'echo1'を含みます。
+-ジョブ'job2' はタスク'echo2'を含むジョブであり、このジョブは２つのジョブ'job0'と'job1'が終了してから実行されます。その依存関係は２１行目で指定されています。
+
+ 01: task "echo1" do 
+ 02:   command  "/bin/echo"
+ 03:   arguments  "1"
+ 04: end
+ 05: 
+ 06: task "echo2" do 
+ 07:   command  "/bin/echo"
+ 08:   arguments  "2"
+ 09: end
+ 10: 
+ 11: job "job0" do 
+ 12:   id  jobId("job1", "bc_map.csv") 
+ 13: end
+ 14: 
+ 15: job "job1" do 
+ 16:   tasks  "echo1"
+ 17: end
+ 18: 
+ 19: job "job2" do 
+ 20:   tasks  "echo2"
+ 21:   dependsOnJobs  "job0", "job1"
+ 22: end
+ 
+           Fig.6: 実行順序に依存関係のあるジョブを記述したバッチファイル
+
+** 例3
+
+図7はタスクがジョブ投入時に動的に決定されるバッチファイルの例です。カレントディレクトリにある拡張子'.txt'のファイル１つに対して１つのタスクが定義されます。そのタスクは、bcコマンドを使って、拡張子'.txt'のファイルの内容を評価します。
+
+この例では、変数、配列、制御構造、そしてRubyの標準的なライブラリが使われています。バッチファイルを記述しているときには、ジョブを投入するときに拡張子'.txt'のファイルがいくつあるか分からないからです。
+-拡張子'.txt'のファイルは、１行目で、Rubyのライブラリ'Dir'で収集されます。
+-４行目から８行目では、ファイル定義のテンプレートが使われています。
+-１６行目から２０行目では、タスク定義にテンプレートが使われています。
+
+
+ 01: filelist = Dir.glob("*.txt")
+ 02: 
+ 03: filelist.each do |f|
+ 04:   file f.to_s do 
+ 05:     agentPathName  f.to_s
+ 06:     localPathName  f.to_s
+ 07:     isExecutable  false
+ 08:   end
+ 10: end
+ 11: 
+ 12: taskNames = []
+ 13: filelist.each do |f|
+ 14:   taskName = "bc" + f.to_s
+ 15:   taskNames = taskNames | [taskName]
+ 16:   task taskName do 
+ 17:     command  "/usr/bin/bc"
+ 18:     arguments "-q", f.to_s
+ 19:     refersTo  f.to_s
+ 20:   end
+ 21: end
+ 22:   
+ 23: job "job1" do 
+ 24:   tasks  taskNames
+ 25: end
+ 
+          Fig.7: 動的に定義されるタスクを含むバッチファイル
+
+** 例4
+図8はARTスクリプトを利用するバッチファイルの例です。
+-1行目から4行目では、機種名を調べるARTスクリプトとそれへのコマンドライン引数との組を定義しています。この組み合わせによって、"Mac mini"で始まるエージェントという条件を判定できます。
+--"macmodel"がARTスクリプト名です。実体はインストールしたディレクトリ内にあります。
+--正規表現"^Mac mini"はそのARTスクリプトに与えるコマンドライン引数です。
+-6行目から8行目では、メモリ容量をMB単位で出力するARTスクリプトを指定しています。
+--"memsize"がARTスクリプト名です。実体はインストールしたディレクトリ内にあります。
+-22行目から26行目では, ジョブjob1を実行する条件として、機種名が"Mac mini"で始まりかつ1024MB以上のメモリをもつエージェントを指定しています。
+
+この例ではインストールしたARTスクリプトファイルを指定していますが、自分で作成したARTスクリプトもバッチファイルから指定できます。
+
+ 01: art "onMacmini" do
+ 02:   localPathName "macmodel"
+ 03:   arguments "^Mac mini"
+ 04: end
+ 05: 
+ 06: art "memsize" do
+ 07:   localPathName "memsize"
+ 08: end
+ 09: 
+ 10: file "bc_exp1.txt" do
+ 11:  localPathName "bc_exp1.txt"
+ 12:  agentPathName "bc_exp1.txt"
+ 13:  isExecutable false
+ 14: end
+ 15:
+ 16: task "bc" do
+ 17:   command "/usr/bin/bc"
+ 18:   arguments "-q", "bc_exp1.txt"
+ 19:   refersTo "bc_exp1.txt"
+ 20: end
+ 21: 
+ 22: job "job1" do 
+ 23:   tasks "bc"
+ 24:   arts "onMacmini"
+ 25:   artConds "memsize"=>{:min=>1024}
+ 26: end
+ 
+          Fig.8: ARTスクリプトを利用するバッチファイル
+
+
+* RuBLX : A Ruby-based Batch Language for Xgrid
+
+１つのバッチファイルは次の要素を含みます。
+-１つ以上のジョブ定義、１つ以上のタスク定義、０個以上のファイル定義
+-任意の場所に任意のRubyコード
+
+ジョブ定義、タスク定義、ファイル定義の順番は重要ではありません。
+
+RuBLXの文法を図9, 図10, 図11, 図12そして図13に示します。各図の記法を説明します。
+-'<'と '>'とで囲まれているのは非終端記号です。（つまり具体的な文字列で置き換えるべき箇所です。）
+-記法'(X)?'は、Xの部分は書いても書かなくても良いことを意味します。
+-記法'(X)*'は、Xの部分は0回以上出現することを意味します。
+-記法'(X|Y)'は、XもしくはYのどちらか一方を書くことを意味します。
+-あるdo-endブロック内の記述の順序は重要ではありません。
+
+**ARTファイル定義
+ art <LOGICAL_ART_NAME> do 
+   ( localPathName  <PATH_ON_LOCAL> | contents <STRING> )
+   ( arguments  <COMMAND_ARGUMENT_LIST> ) ? 
+ end 
+ 
+           Fig.9:  ARTファイル定義の文法
+
+ARTファイル定義の文法を図8に示します。
+-<LOGICAL_ART_NAME>は論理ART名です。
+-ARTファイルの内容は、<PATH_ON_LOCAL>か<STRING>で指定します。
+--<PATH_ON_LOCAL>は、rxgridを実行する計算機上でのファイルのパスで、そのファイルの内容を指定します。
+--- 指定されたパスが絶対パスの場合、その絶対パスで指定されるファイルになります。
+--- 指定されたパスが相対パスの場合、カレントディレクトリとARTファイルをインストールしたディレクトリから順にファイルが探索されます。
+--<STRING>は、文字列によってそのファイルの内容を指定します。
+-<COMMAND_ARGUMENT_LIST> はコマンドライン引数を配列もしくは引数リストで指定します。
+
+**ファイル定義
+ file <LOGICAL_FILE_NAME> do
+     agentPathName  <PATH_ON_AGENT> 
+   ( localPathName  <PATH_ON_LOCAL> | contents <STRING> )
+   ( isExecutable  <EXECUTABLE> ) ? 
+ end 
+ 
+           図10:  ファイル定義の文法
+
+ファイル定義の文法を図10に示します。
+-<LOGICAL_FILE_NAME>は論理ファイル名です。
+-<PATH_ON_AGENT>はXgridのエージェント上でのファイルのパスを指定します。
+-ファイルの内容は、<PATH_ON_LOCAL>か<STRING>で指定します。
+--<PATH_ON_LOCAL>は、rxgridを実行する計算機上でのファイルのパスで、そのファイルの内容を指定します。
+--<STRING>は、文字列によってそのファイルの内容を指定します。
+--<EXECUTABLE>は、そのファイルが実行ファイルなら'true'、そうでないなら'false'にします。
+
+**タスク定義
+ task <LOGICAL_TASK_NAME> do 
+      command  <PATH_OF_COMMAND> 
+    ( arguments  <COMMAND_ARGUMENT_LIST> ) ? 
+    ( environment  <ENVIRONMENT_HASH> ) ? 
+    ( inputStream  <LOGICAL_FILE_NAME> ) ? 
+    ( dependsOn  <LOGICAL_TASK_NAME_LIST> ) ? 
+    ( refersTo  <LOGICAL_FILE_NAME_LIST> ) ? 
+    ( inputFileMap  <INPUT_FILE_MAP_HASH> ) ? 
+ end 
+ 
+          図11: タスク定義の文法
+
+タスク定義の文法を図11に示します。
+-<LOGICAL_TASK_NAME> は論理タスク名です。
+-<PATH_OF_COMMAND> はコマンドのパスを指定します。
+-<COMMAND_ARGUMENT_LIST> はコマンドライン引数を配列もしくは引数リストで指定します。
+-<ENVIRONMENT_HASH> は、環境変数をハッシュで指定します。
+--ハッシュのキーは環境変数名です。
+--ハッシュの値は環境変数の値です。
+-<LOGICAL_FILE_NAME>は、コマンドに標準入力として与える内容のファイルのパスです。
+-<LOGICAL_TASK_NAME_LIST> は、そのタスクが実行を始める前に、終了しているべきタスクの論理タスク名の配列もしくは引数リストです。
+-<LOGICAL_FILE_NAME_LIST> は、そのタスクが参照するファイルの論理ファイル名の配列もしくは引数リストです。そのタスクが参照するファイルは、タスク定義の'refersTo'か、そのタスクを含むジョブ定義の'files'で指定しなければいけません。（絶対パスのファイルは指定しなくても良い。）
+-<INPUT_FILE_MAP_HASH>は、エージェント上でのファイルパスとその内容との対応を指定するハッシュです。その効果は、そのタスクのみで有効です。
+--ハッシュのキーはファイルパスです。
+--ハッシュの値は論理ファイル名です。
+
+**ジョブ定義
+ job <LOGICAL_JOB_NAME>  do 
+    id  ( <PREVIOUSLY_SUBMITTED_JOB_ID> | 
+            jobId( <LOGICAL_JOB_NAME> , <MAP_FILE_PATH> ) ) 
+ end 
+ 
+          図12: ジョブ定義の文法（ケース１）
+
+投入済みジョブの定義は図12のように記述します。
+-<LOGICAL_JOB_NAME>は論理ジョブ名です。
+-ジョブIDは次のいずれかの方法で指定されます。
+--ジョブID <PREVIOUSLY_SUBMITTED_JOB_ID>
+--論理ジョブ名 <LOGICAL_JOB_NAME> とマップファイル <MAP_FILE_PATH>　との組
+
+ job <LOGICAL_JOB_NAME>  do 
+    ( mail  <MAIL_ADDRESS> ) ? 
+    ( tasksMustStartSimultaneously  <TASKS_MUST_START_SIMULTANEOUSLY> ) ? 
+    ( minimumTaskCount  <MINIMUM_TASK_COUNT> ) ? 
+    ( dependsOnJobs  <LOGICAL_JOB_NAME_LIST> ) ? 
+    ( files  <LOGICAL_FILE_NAME_LIST> ) ? 
+      tasks  <LOGICAL_TASK_NAME_LIST> 
+    ( arts   <LOGICAL_ART_NAME_LIST> )*
+    ( artConds <ART_COND_MAP_HASH> )*
+ end 
+ 
+           Fig.13: ジョブ定義の文法（ケース２）
+
+投入されるジョブの定義は図13のように記述します。
+-<MAIL_ADDRESS> は、ジョブの状態が変化したときの通知先メールアドレスを指定します。
+-<TASKS_MUST_START_SIMULTANEOUSLY> は複数のタスクが同時に起動すべきか否かを指定します。
+--'true'なら同時に起動します。
+--'false' なら同時には起動しません。
+--指定しなければ'true'が採用されます。
+-<MINIMUM_TASK_COUNT> は、同時に起動するタスクの最小数を指定します。
+--何も指定しなければ1が採用されます。
+-<LOGICAL_JOB_NAME_LIST> は、そのジョブが実行を開始する前に終了しているべきジョブの論理ジョブ名の配列もしくは引数リストです。
+-<LOGICAL_FILE_NAME_LIST> はそのジョブが使用するファイルの論理ファイル名の配列もしくは引数リストです。このジョブが含むタスクの定義で、'refersTo'によりファイルが指定されていれば、そのファイルは自動的にこの配列もしくは引数リストに加えられます。
+-<LOGICAL_TASK_NAME_LIST> は、このジョブが含むタスクの論理タスク名の配列もしくは引数リストです。
+-<ART_COND_MAP_HASH>は、論理ART名とARTスコアとの対応を指定するハッシュです。
+--ハッシュのキーは論理ART名です。
+--ハッシュの値はART条件です。各 ART条件 は、シンボル(':eq', ':min', ':max')と非負整数との対応を指定するハッシュです。
+
+* 定義済みARTスクリプト
+インストールしたディレクトリ内には以下のARTスクリプトが用意されています。
+
+-ARTスクリプト 'cpuclock' は CPUクロック周波数(MHz)をARTスコアとして出力します。
+-ARTスクリプト 'cpumodel' は CPUモデル名を検査します。コマンドライン引数に与えられた正規表現がCPUモデル名にマッチすれば1, そうでなければ0を出力します。
+-ARTスクリプト 'executable' は ファイルが実行可能かどうかを検査します。コマンドライン引数に与えられたファイルが全て実行可能なら1, そうでなければ0を出力します。
+-ARTスクリプト 'exist' は ファイルが存在するかどうかを検査します。コマンドライン引数に与えられたファイルが存在すれば1, そうでなければ0を出力します。
+-ARTスクリプト 'gpumodel' は GPUモデル名を検査します。コマンドライン引数に与えられた正規表現がGPUモデル名にマッチすれば1, そうでなければ0を出力します。
+-ARTスクリプト 'hostname' は ホスト名を検査します。コマンドライン引数に与えられた正規表現がホスト名にマッチすれば1, そうでなければ0を出力します。
+-ARTスクリプト 'loadavg' は CPUの負荷を出力します。
+-ARTスクリプト 'macmodel' は Macの機種名を検査します。コマンドライン引数に与えられた正規表現が機種名にマッチすれば1, そうでなければ0を出力します。
+-ARTスクリプト 'memsize' は メモリサイズ(MB)をARTスコアとして出力します。
+-ARTスクリプト 'readable' は ファイルが読み込み可能かどうかを検査します。コマンドライン引数に与えられたファイルが全て読み込み能なら1, そうでなければ0を出力します。
+-ARTスクリプト 'sysver' は OSのバージョンを検査します。コマンドライン引数に与えられた正規表現がOSのバージョン名にマッチすれば1, そうでなければ0を出力します。
+
+* バグ報告、ご意見など
+
+バグ報告やご意見などは歓迎いたします。もしこのソフトウェアを研究でお使いなら、是非メールでお知らせください。
+メールアドレスは以下の通りです。
+-tetsuya[at]sic.shibaura-it.ac.jp    ('[at]'を'@'に置き換えてください。)
+
+* 論文
+-[[Tetsuya SUZUKI and Kiyoto HAMANO. RuBLX: A RUBY-BASED BATCH LANGUAGE FOR XGRID. In Proceedings of 21st European Conference on Modelling and Simulation, pp.691-696, 2007.>http://www.scs-europe.net/conf/ecms2007/ecms2007-cd/ecms2007/ecms2007%20pdf/hpc_1016.pdf]]
+
+* 関連リンク
+-[[Apple - Mac OS X - Xgrid>http://www.apple.com/macosx/features/xgrid/]]
+-[[PyXG = Python + Xgrid>http://pyxg.scipy.org/]]
+-[[GridStuffer>http://cmgm.stanford.edu/~cparnot/xgrid-stanford/html/goodies/GridStuffer-info.html]]
+-The Xgrid Tutorials on [[MacResearch>http://www.macresearch.org/]]
+--[[The Xgrid Tutorials (Part I): Xgrid Basics>http://www.macresearch.org/the_xgrid_tutorials_part_i_xgrid_basics]]
+--[[The Xgrid Tutorials (Part II): GridStuffer Basics>http://www.macresearch.org/the_xgrid_tutorials_part_ii_gridstuffer_basics]]
+--[[The Xgrid Tutorials (Part III): Running Batch Jobs>http://www.macresearch.org/the_xgrid_tutorials_part_iii_running_batch_jobs]]
+--[[The Xgrid Tutorials (Part IV): Submit Jobs with Ruby>http://macresearch.org/the_xgrid_tutorials_part_iv_submit_jobs_with_ruby]]
+-[[Xgrid Batch Editor>http://kellerfarm.com/kfsproducts/yesfree/xgridbatcheditor/index.html]]
+-[[Xgrid.rb>http://www.dcs.st-and.ac.uk/~jm/xgrid/]]

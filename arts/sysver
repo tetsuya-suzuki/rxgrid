@@ -1,0 +1,69 @@
+#!/usr/bin/ruby
+#
+# NAME
+#   sysver
+#
+# SYNOPSIS:
+#   From command line,
+#
+#     sysver [<regular_expression>]
+#
+#   In batch files,
+#
+#     art <art_id> do
+#       localPathName 'sysver'
+#       arguments <regular_expression>
+#     end
+#
+# DESCRIPTION
+#   The 'sysver' checks if a given Ruby's regular expression <regular_expression> matches
+#   with the system version of the host on which the 'sysver' runs or not.
+#   It puts the ART score 1 to standard output if <regular_expression> matches with
+#   the system version or puts the ART score 0 otherwise.
+#
+#   If you want to know the system version of your machine, run 'sysver' without 
+#   any command line argument. It will print the system version.
+#
+#   For example, it prints '1' if the system version is Leopard or Snow Leopard 
+#   or puts '0' otherwise.
+#
+#     sysver 'Mac OS X( Server)? 10.(5|6)'
+#
+#   In the following case, the job 'job1' in a batch file will be executed on an Xgrid agent
+#   if the system version is Leopard or Snow Leopard.
+#
+#     art 'onLeoardOrSnowLeopard' do
+#       localPathName 'sysver'
+#       arguments 'Mac OS X( Server)? 10.(5|6)'
+#     end
+#
+#     job 'job1' do
+#       ...
+#       ...
+#       arts 'onLeoardOrSnowLeopard'
+#     end
+#
+# AUTHOR
+#   Tetsuya SUZUKI <tetsuya[at]sic.shibaura-it.ac.jp> (Please replace '[at]' with '@')
+#
+#
+
+cmd = "/usr/sbin/system_profiler SPSoftwareDataType"
+stdout = IO.popen(cmd)
+stdout.sync = true
+while line = stdout.gets
+  line.chomp!
+  if /System Version:\s*(.*)/ =~ line
+    systemVersion = $1
+    break
+  end
+end
+stdout.close
+
+if ARGV.size == 0
+  puts systemVersion
+elsif /#{ARGV[0]}/ =~ systemVersion
+  puts 1
+else
+  puts 0
+end
