@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-# -*- coding: cp932 -*-
+# -*- coding: utf-8 -*-
 #
 # A processor for RuBLX (a Ruby-based Batch Language for Xgrid)
 # 
@@ -511,7 +511,7 @@ class ARTCond
 end
 
 #
-# JobÅ@class
+# Job„ÄÄclass
 #
 # tags for a job
 # name

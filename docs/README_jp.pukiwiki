@@ -1,40 +1,40 @@
 [[English page is here>Software/rxgrid]]
 
-rxgrid�ϡ�Ruby�١�����Xgrid�ѥХå�����RuBLX�ν����ϤǤ���
-Xgrid�Ȥ�Mac OS X���ڥ졼�ƥ��󥰥����ƥ��Ѥ�ʬ������׻��Ķ��Ǥ���������Ruby�����ѤΥ��֥������Ȼظ�����Ǥ���
+rxgridは、RubyベースのXgrid用バッチ言語RuBLXの処理系です。
+XgridとはMac OS Xオペレーティングシステム用の分散並列計算環境です。そしてRubyは汎用のオブジェクト指向言語です。
 
-rxgrid�ˤ�äƼ��Τ��Ȥ��Ǥ��ޤ��� 
--Xgrid��ɸ��Ū��XML�١����ΥХå�����ǤϤʤ��� Ruby�١����ΥХå�����ǽ񤤤��ʷ�ʥХå��ե������Ȥäơ�����֤������Ǥ��ޤ���
--�����ID�ǤϤʤ�����֤�����̾�ǡ�����֤δ������Ǥ��ޤ���
--ART������ץȤ˥��ޥ�ɥ饤�������Ϳ�����ޤ���
+rxgridによって次のことができます。 
+-Xgridの標準的なXMLベースのバッチ言語ではなく、 Rubyベースのバッチ言語で書いた簡潔なバッチファイルを使って、ジョブを投入できます。
+-ジョブIDではなくジョブの論理名で、ジョブの管理ができます。
+-ARTスクリプトにコマンドライン引数を与えられます。
 
-����ʸ��ΰʹߤι����ϼ��Τ褦�ˤʤäƤ��ޤ���
+この文書の以降の構成は次のようになっています。
 #contents
 
-����ʸ��Ǥϡ��ɼԤ�Xgrid�Ѥ�ɸ��Ū��XML�١����ΥХå����졢Xgrid�Ѥ�ɸ��Ū�ʥ��饤����ȥץ������, ������Ruby����δ��ܤ����򤷤Ƥ��뤳�Ȥ��ꤷ�Ƥ��ޤ���
+この文書では、読者はXgrid用の標準的なXMLベースのバッチ言語、Xgrid用の標準的なクライアントプログラム, そしてRuby言語の基本を理解していることを仮定しています。
 
-* rxgrid : RuBLX��Xgrid���饤����ȥץ������
-**�饤����
-rxgrid�� [[the GNU General Public License (GPL) version 2>http://www.gnu.org/licenses/gpl.txt]]�β��Ǥ����ۤ���Ƥ��ޤ��� 
+* rxgrid : RuBLX用Xgridクライアントプログラム
+**ライセンス
+rxgridは [[the GNU General Public License (GPL) version 2>http://www.gnu.org/licenses/gpl.txt]]の下でで配布されています。 
 
-** �����ΥС�����󤫤���ѹ���
--ART���б����ޤ�����ART������ץȤ˥��ޥ�ɥ饤��������Ϥ��Ƽ¹ԤǤ��ޤ��������ART������ץȤκ�����������ޤ���
--����������ά�����줿ʸˡ���б����ޤ������Хå��ե�������ǡ������ꥹ�Ȥ�Ϥ�ѳ��('['��']')���ά�Ǥ���褦�ˤʤ�ޤ�����
+** 以前のバージョンからの変更点
+-ARTに対応しました。ARTスクリプトにコマンドライン引数を渡して実行できます。これはARTスクリプトの再利用性を高めます。
+-少しだけ簡略化された文法に対応しました。バッチファイル内で、引数リストを囲む角括弧('['と']')を省略できるようになりました。
 
-**���󥹥ȡ���
-+���������֥ե����� 'rxgrid_v1_0_0.zip'�򼡤Υ�󥯤������������ɤ��ޤ���
+**インストール
++アーカイブファイル 'rxgrid_v1_0_0.zip'を次のリンクからダウンロードします。
 --[[rxgrid Ver. 1.0.0 (May 13, 2010)>http://www.tslab.se.shibaura-it.ac.jp/downloads/rxgrid/rxgrid_v1_0_0.zip]]
-+���Υ��������֥ե������Ÿ�����ޤ���
++そのアーカイブファイルを展開します。
  % unzip rxgrid_v1_0_0.zip
-+Ÿ����������줿�ǥ��쥯�ȥ��Ŭ�ڤʥѥ��إ��ԡ����ޤ���������Ǥ� /usr/local/���˥��ԡ�����ޤ���
++展開して得られたディレクトリを適切なパスへコピーします。次の例では /usr/local/　にコピーされます。
  % sudo cp -r rxgrid_v1_0_0 /usr/local/
-+ɬ�פʤ饳�ޥ�ɥ������ѥ��򹹿����Ƥ���������
-���Ȥ��Υ����뤬csh/tcsh�ξ��, ���Τ褦�ʰ�Ԥ�~/.cshrc���ɲä��Ƥ����Ȥ褤�Ǥ��礦��
++必要ならコマンドサーチパスを更新してください。
+お使いのシェルがcsh/tcshの場合, 次のような一行を~/.cshrcに追加しておくとよいでしょう。
   setenv PATH $PATH:/usr/local/rxgrid_v1_0_0/bin
-���Ȥ��Υ����뤬bash�ξ��, ���Τ褦�ʰ�Ԥ�~/.bash_profile���ɲä��Ƥ����Ȥ褤�Ǥ��礦��
+お使いのシェルがbashの場合, 次のような一行を~/.bash_profileに追加しておくとよいでしょう。
   PATH=$PATH:/usr/local/rxgrid_v1_0_0/bin
 
-**�Ȥ���
+**使い方
  rxgrid [-h[ostname] hostname] [-auth { Password | Kerberos }]
        [-p[assword] password] [-xgrid xgrid-command]
  rxgrid [-nosubmission] [-createbatchfiles] -job batch [-gid grid-identifier]
@@ -47,24 +47,24 @@ rxgrid�� [[the GNU General Public License (GPL) version 2>http://www.gnu.org/lic
  rxgrid -version
  rxgrid -help
 
-���ץ����ϴ���Ū��xgrid���ޥ�ɤΥ��ץ����ȸߴ���������ޤ���
-- '-xgrid'���ץ����ϡ�xgrid���ޥ�ɤ������rxgrid�����Ѥ��륳�ޥ�ɤ���ꤷ�ޤ���
---���Υ��ޥ�ɤϴĶ��ѿ�RXGRID_XGRID�Ǥ����Ǥ��ޤ���
-- '-nosubmission'���ץ�����Ĥ���ȥ���֤��������ޤ���
-- '-createbatchfiles'���ץ�������ꤹ��ȡ�XML�١����ΥХå��ե����뤬�ե�����Ȥ��ƽ��Ϥ���ޤ���
-- '-map'���ץ����ϥޥåץե��������ꤷ�ޤ��� 
--- '-job batch' �ȶ��˻��Ѥ����'-map'���ץ����ϡ� ���������ޥåץե�����̾����ꤷ�ޤ���
-- '-I'���ץ�����ART������ץȤΥ������ѥ����ɲä��ޤ���ART������ץȤΥ������ѥ��ϴĶ��ѿ�RXGRID_ART_PATH�Ǥ��ɲäǤ��ޤ����ɤ����':'�ǥǥ��쥯�ȥ����ڤ�ޤ���
--- ART������ץȤ�õ�������, -I���ɲä����ǥ��쥯�ȥ�, �Ķ��ѿ�RXGRID_ART_PATH�ǻ��ꤷ���ǥ��쥯�ȥ�, rxgrid�ȶ��˥��󥹥ȡ��뤵�줿ART������ץ�, �����ȥǥ��쥯�ȥ�ν�Ǥ���
-- '-id'���ץ����
--- '-map'���ץ����ȶ��˻��Ѥ���� '-id'���ץ����ϥޥåץե�����������������̾����ꤷ�ޤ���
--- '-map'���ץ����̵���� '-id'���ץ����ϥ����ID����ꤷ�ޤ���
--'-job  results'��'-job attributes'�ˤϡ�'-id'���ץ����'-map'���ץ����ξ��ʤ��Ȥ�ɤ��餫������ɬ�פˤʤ�ޤ���
+オプションは基本的にxgridコマンドのオプションと互換性があります。
+- '-xgrid'オプションは、xgridコマンドの代わりにrxgridが使用するコマンドを指定します。
+--そのコマンドは環境変数RXGRID_XGRIDでも指定できます。
+- '-nosubmission'オプションをつけるとジョブを投入しません。
+- '-createbatchfiles'オプションを指定すると、XMLベースのバッチファイルがファイルとして出力されます。
+- '-map'オプションはマップファイルを指定します。 
+-- '-job batch' と共に使用される'-map'オプションは、 作成されるマップファイル名を指定します。
+- '-I'オプションはARTスクリプトのサーチパスを追加します。ARTスクリプトのサーチパスは環境変数RXGRID_ART_PATHでも追加できます。どちらも':'でディレクトリを区切ります。
+-- ARTスクリプトの探索順序は, -Iで追加したディレクトリ, 環境変数RXGRID_ART_PATHで指定したディレクトリ, rxgridと共にインストールされたARTスクリプト, カレントディレクトリの順です。
+- '-id'オプション
+-- '-map'オプションと共に使用される '-id'オプションはマップファイル中の論理ジョブ名を指定します。
+-- '-map'オプション無しの '-id'オプションはジョブIDを指定します。
+-'-job  results'と'-job attributes'には、'-id'オプションか'-map'オプションの少なくともどちらか一方が必要になります。
 
-* ������
-�ʲ��ΥХå��ե��������򼨤��ޤ������󥹥ȡ��뤷���ǥ��쥯�ȥ���ˤ�Хå��ե�������㤬����ޤ���������⻲�Ȥ��Ƥ���������
-** ��1
-��1�ΥХå��ե�����ϡ��ޣ��Υե�����'bc_exp.txt'�˽񤫤줿����׻��ץ������'/usr/bin/bc'�Ƿ׻����른��֤򵭽Ҥ��Ƥ��ޤ��� 
+* 使用例
+以下のバッチファイルの例を示します。インストールしたディレクトリ内にもバッチファイルの例があります。そちらも参照してください。
+** 例1
+図1のバッチファイルは、図２のファイル'bc_exp.txt'に書かれた式を計算プログラム'/usr/bin/bc'で計算するジョブを記述しています。 
 
 // Fig.1 
  01: file "bc_exp.txt" do 
@@ -83,52 +83,52 @@ rxgrid�� [[the GNU General Public License (GPL) version 2>http://www.gnu.org/lic
  14:   tasks  "bc"
  15: end
  
-           ��1: RuBLX�ǵ��Ҥ����Хå��ե����� 'bc.rb'
+           図1: RuBLXで記述したバッチファイル 'bc.rb'
 
 // Fig.2
  01: 1 + 2
  02: quit
  
-           ��2: bc���ޥ�ɤΥ�����ץȥե�����'bc_exp.txt' 
+           図2: bcコマンドのスクリプトファイル'bc_exp.txt' 
  
 
 // Fig.3 
  % rxgrid -h xgridcontroller -p pass -job batch bc.rb
  
-           ��3:  rxgrid�ˤ�른��֤�����
+           図3:  rxgridによるジョブの投入
 
-��1�ΥХå��ե�����˵��Ҥ��줿����֤�rxgrid����������ˤϿޣ��Τ褦�ˤ��ޤ���rxgrid���ޥ�ɤΥ��ץ����ϡ�xgrid���ޥ�ɤΥ��ץ����ȸߴ���������ޤ���
+図1のバッチファイルに記述されたジョブをrxgridで投入するには図３のようにします。rxgridコマンドのオプションは、xgridコマンドのオプションと互換性があります。
 
 // Fig.4 
  01: 381,job1
  
-           ��4: �������줿�ޥåץե����� 'bc_map.csv'
+           図4: 生成されたマップファイル 'bc_map.csv'
  
-rxgrid���ޥ�ɤϡ�����֤��������˥ޥåץե�������������ޤ����ޥåץե�����Ȥϥ����ID�ȥ���֤�����̾�Ȥ��б���Ͽ�����ե�����Ǥ��� ��4����Ǥϡ������ID��381�ȥ��������̾��job1���б����Ƥ��ޤ���
+rxgridコマンドは、ジョブの投入時にマップファイルを生成します。マップファイルとはジョブIDとジョブの論理名との対応を記録したファイルです。 図4の例では、ジョブID　381とジョブ論理名　job1が対応しています。
 
- ������(1) 
+ ケース(1) 
  % rxgrid -h xgridcontroller -p pass -job results -id job1 -map bc_map.csv
  
- ������(2) 
+ ケース(2) 
  % rxgrid -h xgridcontroller -p pass -job results -map bc_map.csv
  
- ������(3) 
+ ケース(3) 
  % rxgrid -h xgridcontroller -p pass -job results -id 381
  
-           ��5: ��̤β�� 
+           図5: 結果の回収 
 
-�ޣ��˥���֤μ¹Է�̤β����ˡ���̤꼨���ޤ�����̤�������ˤϡ�'-id'���ץ�����'-map'���ץ����ξ��ʤ��Ȥ������ɬ�פˤʤ�ޤ���
--������ (1)�ξ�硢 ��̤��������른��֤�'-id'���ץ�����'-map'���ץ�����ξ���ǻ��ꤵ��Ƥ��ޤ��� 
--�⤷������(2)�Τ褦��'-id'���ץ���󤬻��ꤵ��Ƥ��ʤ���С��ޥåץե�������Τ��٤ƤΥ���֤η�̤��������ޤ���
--�⤷������(3)�Τ褦��'-map'���ץ���󤬻��ꤵ��Ƥ��ʤ����, �����ID�ǻ��ꤵ�줿����֤η�̤��������ޤ���
+図５にジョブの実行結果の回収方法を３通り示します。結果を回収するには、'-id'オプションと'-map'オプションの少なくとも一方が必要になります。
+-ケース (1)の場合、 結果が回収されるジョブは'-id'オプションと'-map'オプションの両方で指定されています。 
+-もしケース(2)のように'-id'オプションが指定されていなければ、マップファイル中のすべてのジョブの結果が回収されます。
+-もしケース(3)のように'-map'オプションが指定されていなければ, ジョブIDで指定されたジョブの結果が回収されます。
 
 
-** ��2
+** 例2
 
-�ޣ��ϡ��¹Խ���˰�¸�ط��Τ��른��֤򵭽Ҥ����Хå��ե��������Ǥ��������Ǥϣ��ĤΥ���� 'job0', 'job1'������ 'job2'���������Ƥ��ޤ���
-- �����'job0'�Ϥ��Ǥ���������Ƥ��른��֤Ǥ������Υ����ID�ϣ������ܤǡ����������̾�ȥޥåץե�����Ȥ��Ȥǻ��ꤵ��Ƥ��ޤ���
--�����'job1'�ϥ�����'echo1'��ޤߤޤ���
--�����'job2' �ϥ�����'echo2'��ޤॸ��֤Ǥ��ꡢ���Υ���֤ϣ��ĤΥ����'job0'��'job1'����λ���Ƥ���¹Ԥ���ޤ������ΰ�¸�ط��ϣ������ܤǻ��ꤵ��Ƥ��ޤ���
+図６は、実行順序に依存関係のあるジョブを記述したバッチファイルの例です。そこでは３つのジョブ 'job0', 'job1'そして 'job2'が定義されています。
+- ジョブ'job0'はすでに投入されているジョブです。そのジョブIDは１２行目で、ジョブ論理名とマップファイルとの組で指定されています。
+-ジョブ'job1'はタスク'echo1'を含みます。
+-ジョブ'job2' はタスク'echo2'を含むジョブであり、このジョブは２つのジョブ'job0'と'job1'が終了してから実行されます。その依存関係は２１行目で指定されています。
 
  01: task "echo1" do 
  02:   command  "/bin/echo"
@@ -153,16 +153,16 @@ rxgrid���ޥ�ɤϡ�����֤��������˥ޥåץե�������������ޤ����ޥåץե�����Ȥ�
  21:   dependsOnJobs  "job0", "job1"
  22: end
  
-           Fig.6: �¹Խ���˰�¸�ط��Τ��른��֤򵭽Ҥ����Хå��ե�����
+           Fig.6: 実行順序に依存関係のあるジョブを記述したバッチファイル
 
-** ��3
+** 例3
 
-��7�ϥ��������������������ưŪ�˷��ꤵ���Хå��ե��������Ǥ��������ȥǥ��쥯�ȥ�ˤ����ĥ��'.txt'�Υե����룱�Ĥ��Ф��ƣ��ĤΥ��������������ޤ������Υ������ϡ�bc���ޥ�ɤ�Ȥäơ���ĥ��'.txt'�Υե���������Ƥ�ɾ�����ޤ���
+図7はタスクがジョブ投入時に動的に決定されるバッチファイルの例です。カレントディレクトリにある拡張子'.txt'のファイル１つに対して１つのタスクが定義されます。そのタスクは、bcコマンドを使って、拡張子'.txt'のファイルの内容を評価します。
 
-������Ǥϡ��ѿ����������湽¤��������Ruby��ɸ��Ū�ʥ饤�֥�꤬�Ȥ��Ƥ��ޤ����Хå��ե�����򵭽Ҥ��Ƥ���Ȥ��ˤϡ�����֤���������Ȥ��˳�ĥ��'.txt'�Υե����뤬�����Ĥ��뤫ʬ����ʤ�����Ǥ���
--��ĥ��'.txt'�Υե�����ϡ������ܤǡ�Ruby�Υ饤�֥��'Dir'�Ǽ�������ޤ���
--�����ܤ��飸���ܤǤϡ��ե���������Υƥ�ץ졼�Ȥ��Ȥ��Ƥ��ޤ���
--�������ܤ��飲�����ܤǤϡ�����������˥ƥ�ץ졼�Ȥ��Ȥ��Ƥ��ޤ���
+この例では、変数、配列、制御構造、そしてRubyの標準的なライブラリが使われています。バッチファイルを記述しているときには、ジョブを投入するときに拡張子'.txt'のファイルがいくつあるか分からないからです。
+-拡張子'.txt'のファイルは、１行目で、Rubyのライブラリ'Dir'で収集されます。
+-４行目から８行目では、ファイル定義のテンプレートが使われています。
+-１６行目から２０行目では、タスク定義にテンプレートが使われています。
 
 
  01: filelist = Dir.glob("*.txt")
@@ -190,18 +190,18 @@ rxgrid���ޥ�ɤϡ�����֤��������˥ޥåץե�������������ޤ����ޥåץե�����Ȥ�
  24:   tasks  taskNames
  25: end
  
-          Fig.7: ưŪ���������륿������ޤ�Хå��ե�����
+          Fig.7: 動的に定義されるタスクを含むバッチファイル
 
-** ��4
-��8��ART������ץȤ����Ѥ���Хå��ե��������Ǥ���
--1���ܤ���4���ܤǤϡ�����̾��Ĵ�٤�ART������ץȤȤ���ؤΥ��ޥ�ɥ饤������Ȥ��Ȥ�������Ƥ��ޤ��������Ȥ߹�碌�ˤ�äơ�"Mac mini"�ǻϤޤ륨��������ȤȤ�������Ƚ��Ǥ��ޤ���
---"macmodel"��ART������ץ�̾�Ǥ������Τϥ��󥹥ȡ��뤷���ǥ��쥯�ȥ���ˤ���ޤ���
---����ɽ��"^Mac mini"�Ϥ���ART������ץȤ�Ϳ���륳�ޥ�ɥ饤������Ǥ���
--6���ܤ���8���ܤǤϡ��������̤�MBñ�̤ǽ��Ϥ���ART������ץȤ���ꤷ�Ƥ��ޤ���
---"memsize"��ART������ץ�̾�Ǥ������Τϥ��󥹥ȡ��뤷���ǥ��쥯�ȥ���ˤ���ޤ���
--22���ܤ���26���ܤǤ�, �����job1��¹Ԥ�����Ȥ��ơ�����̾��"Mac mini"�ǻϤޤ꤫��1024MB�ʾ�Υ�����ĥ���������Ȥ���ꤷ�Ƥ��ޤ���
+** 例4
+図8はARTスクリプトを利用するバッチファイルの例です。
+-1行目から4行目では、機種名を調べるARTスクリプトとそれへのコマンドライン引数との組を定義しています。この組み合わせによって、"Mac mini"で始まるエージェントという条件を判定できます。
+--"macmodel"がARTスクリプト名です。実体はインストールしたディレクトリ内にあります。
+--正規表現"^Mac mini"はそのARTスクリプトに与えるコマンドライン引数です。
+-6行目から8行目では、メモリ容量をMB単位で出力するARTスクリプトを指定しています。
+--"memsize"がARTスクリプト名です。実体はインストールしたディレクトリ内にあります。
+-22行目から26行目では, ジョブjob1を実行する条件として、機種名が"Mac mini"で始まりかつ1024MB以上のメモリをもつエージェントを指定しています。
 
-������Ǥϥ��󥹥ȡ��뤷��ART������ץȥե��������ꤷ�Ƥ��ޤ�������ʬ�Ǻ�������ART������ץȤ�Хå��ե����뤫�����Ǥ��ޤ���
+この例ではインストールしたARTスクリプトファイルを指定していますが、自分で作成したARTスクリプトもバッチファイルから指定できます。
 
  01: art "onMacmini" do
  02:   localPathName "macmodel"
@@ -230,59 +230,59 @@ rxgrid���ޥ�ɤϡ�����֤��������˥ޥåץե�������������ޤ����ޥåץե�����Ȥ�
  25:   artConds "memsize"=>{:min=>1024}
  26: end
  
-          Fig.8: ART������ץȤ����Ѥ���Хå��ե�����
+          Fig.8: ARTスクリプトを利用するバッチファイル
 
 
 * RuBLX : A Ruby-based Batch Language for Xgrid
 
-���ĤΥХå��ե�����ϼ������Ǥ�ޤߤޤ���
--���İʾ�Υ������������İʾ�Υ�������������İʾ�Υե��������
--Ǥ�դξ���Ǥ�դ�Ruby������
+１つのバッチファイルは次の要素を含みます。
+-１つ以上のジョブ定義、１つ以上のタスク定義、０個以上のファイル定義
+-任意の場所に任意のRubyコード
 
-����������������������ե���������ν��֤Ͻ��פǤϤ���ޤ���
+ジョブ定義、タスク定義、ファイル定義の順番は重要ではありません。
 
-RuBLX��ʸˡ���9, ��10, ��11, ��12�����ƿ�13�˼����ޤ����ƿޤε�ˡ���������ޤ���
--'<'�� '>'�ȤǰϤޤ�Ƥ���Τ���ü����Ǥ����ʤĤޤ����Ū��ʸ������֤�������٤��ս�Ǥ�����
--��ˡ'(X)?'�ϡ�X����ʬ�Ͻ񤤤Ƥ�񤫤ʤ��Ƥ��ɤ����Ȥ��̣���ޤ���
--��ˡ'(X)*'�ϡ�X����ʬ��0��ʾ�и����뤳�Ȥ��̣���ޤ���
--��ˡ'(X|Y)'�ϡ�X�⤷����Y�Τɤ��餫������񤯤��Ȥ��̣���ޤ���
--����do-end�֥��å���ε��Ҥν���Ͻ��פǤϤ���ޤ���
+RuBLXの文法を図9, 図10, 図11, 図12そして図13に示します。各図の記法を説明します。
+-'<'と '>'とで囲まれているのは非終端記号です。（つまり具体的な文字列で置き換えるべき箇所です。）
+-記法'(X)?'は、Xの部分は書いても書かなくても良いことを意味します。
+-記法'(X)*'は、Xの部分は0回以上出現することを意味します。
+-記法'(X|Y)'は、XもしくはYのどちらか一方を書くことを意味します。
+-あるdo-endブロック内の記述の順序は重要ではありません。
 
-**ART�ե��������
+**ARTファイル定義
  art <LOGICAL_ART_NAME> do 
    ( localPathName  <PATH_ON_LOCAL> | contents <STRING> )
    ( arguments  <COMMAND_ARGUMENT_LIST> ) ? 
  end 
  
-           Fig.9:  ART�ե����������ʸˡ
+           Fig.9:  ARTファイル定義の文法
 
-ART�ե����������ʸˡ���8�˼����ޤ���
--<LOGICAL_ART_NAME>������ART̾�Ǥ���
--ART�ե���������Ƥϡ�<PATH_ON_LOCAL>��<STRING>�ǻ��ꤷ�ޤ���
---<PATH_ON_LOCAL>�ϡ�rxgrid��¹Ԥ���׻�����ǤΥե�����Υѥ��ǡ����Υե���������Ƥ���ꤷ�ޤ���
---- ���ꤵ�줿�ѥ������Хѥ��ξ�硢�������Хѥ��ǻ��ꤵ���ե�����ˤʤ�ޤ���
---- ���ꤵ�줿�ѥ������Хѥ��ξ�硢�����ȥǥ��쥯�ȥ��ART�ե�����򥤥󥹥ȡ��뤷���ǥ��쥯�ȥ꤫���˥ե����뤬õ������ޤ���
---<STRING>�ϡ�ʸ����ˤ�äƤ��Υե���������Ƥ���ꤷ�ޤ���
--<COMMAND_ARGUMENT_LIST> �ϥ��ޥ�ɥ饤�����������⤷���ϰ����ꥹ�Ȥǻ��ꤷ�ޤ���
+ARTファイル定義の文法を図8に示します。
+-<LOGICAL_ART_NAME>は論理ART名です。
+-ARTファイルの内容は、<PATH_ON_LOCAL>か<STRING>で指定します。
+--<PATH_ON_LOCAL>は、rxgridを実行する計算機上でのファイルのパスで、そのファイルの内容を指定します。
+--- 指定されたパスが絶対パスの場合、その絶対パスで指定されるファイルになります。
+--- 指定されたパスが相対パスの場合、カレントディレクトリとARTファイルをインストールしたディレクトリから順にファイルが探索されます。
+--<STRING>は、文字列によってそのファイルの内容を指定します。
+-<COMMAND_ARGUMENT_LIST> はコマンドライン引数を配列もしくは引数リストで指定します。
 
-**�ե��������
+**ファイル定義
  file <LOGICAL_FILE_NAME> do
      agentPathName  <PATH_ON_AGENT> 
    ( localPathName  <PATH_ON_LOCAL> | contents <STRING> )
    ( isExecutable  <EXECUTABLE> ) ? 
  end 
  
-           ��10:  �ե����������ʸˡ
+           図10:  ファイル定義の文法
 
-�ե����������ʸˡ���10�˼����ޤ���
--<LOGICAL_FILE_NAME>�������ե�����̾�Ǥ���
--<PATH_ON_AGENT>��Xgrid�Υ���������Ⱦ�ǤΥե�����Υѥ�����ꤷ�ޤ���
--�ե���������Ƥϡ�<PATH_ON_LOCAL>��<STRING>�ǻ��ꤷ�ޤ���
---<PATH_ON_LOCAL>�ϡ�rxgrid��¹Ԥ���׻�����ǤΥե�����Υѥ��ǡ����Υե���������Ƥ���ꤷ�ޤ���
---<STRING>�ϡ�ʸ����ˤ�äƤ��Υե���������Ƥ���ꤷ�ޤ���
---<EXECUTABLE>�ϡ����Υե����뤬�¹ԥե�����ʤ�'true'�������Ǥʤ��ʤ�'false'�ˤ��ޤ���
+ファイル定義の文法を図10に示します。
+-<LOGICAL_FILE_NAME>は論理ファイル名です。
+-<PATH_ON_AGENT>はXgridのエージェント上でのファイルのパスを指定します。
+-ファイルの内容は、<PATH_ON_LOCAL>か<STRING>で指定します。
+--<PATH_ON_LOCAL>は、rxgridを実行する計算機上でのファイルのパスで、そのファイルの内容を指定します。
+--<STRING>は、文字列によってそのファイルの内容を指定します。
+--<EXECUTABLE>は、そのファイルが実行ファイルなら'true'、そうでないなら'false'にします。
 
-**���������
+**タスク定義
  task <LOGICAL_TASK_NAME> do 
       command  <PATH_OF_COMMAND> 
     ( arguments  <COMMAND_ARGUMENT_LIST> ) ? 
@@ -293,35 +293,35 @@ ART�ե����������ʸˡ���8�˼����ޤ���
     ( inputFileMap  <INPUT_FILE_MAP_HASH> ) ? 
  end 
  
-          ��11: �����������ʸˡ
+          図11: タスク定義の文法
 
-�����������ʸˡ���11�˼����ޤ���
--<LOGICAL_TASK_NAME> ������������̾�Ǥ���
--<PATH_OF_COMMAND> �ϥ��ޥ�ɤΥѥ�����ꤷ�ޤ���
--<COMMAND_ARGUMENT_LIST> �ϥ��ޥ�ɥ饤�����������⤷���ϰ����ꥹ�Ȥǻ��ꤷ�ޤ���
--<ENVIRONMENT_HASH> �ϡ��Ķ��ѿ���ϥå���ǻ��ꤷ�ޤ���
---�ϥå���Υ����ϴĶ��ѿ�̾�Ǥ���
---�ϥå�����ͤϴĶ��ѿ����ͤǤ���
--<LOGICAL_FILE_NAME>�ϡ����ޥ�ɤ�ɸ�����ϤȤ���Ϳ�������ƤΥե�����Υѥ��Ǥ���
--<LOGICAL_TASK_NAME_LIST> �ϡ����Υ��������¹Ԥ�Ϥ�����ˡ���λ���Ƥ���٤�������������������̾������⤷���ϰ����ꥹ�ȤǤ���
--<LOGICAL_FILE_NAME_LIST> �ϡ����Υ����������Ȥ���ե�����������ե�����̾������⤷���ϰ����ꥹ�ȤǤ������Υ����������Ȥ���ե�����ϡ������������'refersTo'�������Υ�������ޤॸ��������'files'�ǻ��ꤷ�ʤ���Ф����ޤ��󡣡����Хѥ��Υե�����ϻ��ꤷ�ʤ��Ƥ��ɤ�����
--<INPUT_FILE_MAP_HASH>�ϡ�����������Ⱦ�ǤΥե�����ѥ��Ȥ������ƤȤ��б�����ꤹ��ϥå���Ǥ������θ��̤ϡ����Υ������Τߤ�ͭ���Ǥ���
---�ϥå���Υ����ϥե�����ѥ��Ǥ���
---�ϥå�����ͤ������ե�����̾�Ǥ���
+タスク定義の文法を図11に示します。
+-<LOGICAL_TASK_NAME> は論理タスク名です。
+-<PATH_OF_COMMAND> はコマンドのパスを指定します。
+-<COMMAND_ARGUMENT_LIST> はコマンドライン引数を配列もしくは引数リストで指定します。
+-<ENVIRONMENT_HASH> は、環境変数をハッシュで指定します。
+--ハッシュのキーは環境変数名です。
+--ハッシュの値は環境変数の値です。
+-<LOGICAL_FILE_NAME>は、コマンドに標準入力として与える内容のファイルのパスです。
+-<LOGICAL_TASK_NAME_LIST> は、そのタスクが実行を始める前に、終了しているべきタスクの論理タスク名の配列もしくは引数リストです。
+-<LOGICAL_FILE_NAME_LIST> は、そのタスクが参照するファイルの論理ファイル名の配列もしくは引数リストです。そのタスクが参照するファイルは、タスク定義の'refersTo'か、そのタスクを含むジョブ定義の'files'で指定しなければいけません。（絶対パスのファイルは指定しなくても良い。）
+-<INPUT_FILE_MAP_HASH>は、エージェント上でのファイルパスとその内容との対応を指定するハッシュです。その効果は、そのタスクのみで有効です。
+--ハッシュのキーはファイルパスです。
+--ハッシュの値は論理ファイル名です。
 
-**��������
+**ジョブ定義
  job <LOGICAL_JOB_NAME>  do 
     id  ( <PREVIOUSLY_SUBMITTED_JOB_ID> | 
             jobId( <LOGICAL_JOB_NAME> , <MAP_FILE_PATH> ) ) 
  end 
  
-          ��12: ����������ʸˡ�ʥ���������
+          図12: ジョブ定義の文法（ケース１）
 
-�����Ѥߥ���֤�����Ͽ�12�Τ褦�˵��Ҥ��ޤ���
--<LOGICAL_JOB_NAME>�����������̾�Ǥ���
--�����ID�ϼ��Τ����줫����ˡ�ǻ��ꤵ��ޤ���
---�����ID <PREVIOUSLY_SUBMITTED_JOB_ID>
---���������̾ <LOGICAL_JOB_NAME> �ȥޥåץե����� <MAP_FILE_PATH>���Ȥ���
+投入済みジョブの定義は図12のように記述します。
+-<LOGICAL_JOB_NAME>は論理ジョブ名です。
+-ジョブIDは次のいずれかの方法で指定されます。
+--ジョブID <PREVIOUSLY_SUBMITTED_JOB_ID>
+--論理ジョブ名 <LOGICAL_JOB_NAME> とマップファイル <MAP_FILE_PATH>　との組
 
  job <LOGICAL_JOB_NAME>  do 
     ( mail  <MAIL_ADDRESS> ) ? 
@@ -334,48 +334,48 @@ ART�ե����������ʸˡ���8�˼����ޤ���
     ( artConds <ART_COND_MAP_HASH> )*
  end 
  
-           Fig.13: ����������ʸˡ�ʥ���������
+           Fig.13: ジョブ定義の文法（ケース２）
 
-��������른��֤�����Ͽ�13�Τ褦�˵��Ҥ��ޤ���
--<MAIL_ADDRESS> �ϡ�����֤ξ��֤��Ѳ������Ȥ���������᡼�륢�ɥ쥹����ꤷ�ޤ���
--<TASKS_MUST_START_SIMULTANEOUSLY> ��ʣ���Υ�������Ʊ���˵�ư���٤����ݤ�����ꤷ�ޤ���
---'true'�ʤ�Ʊ���˵�ư���ޤ���
---'false' �ʤ�Ʊ���ˤϵ�ư���ޤ���
---���ꤷ�ʤ����'true'�����Ѥ���ޤ���
--<MINIMUM_TASK_COUNT> �ϡ�Ʊ���˵�ư���륿�����κǾ�������ꤷ�ޤ���
---������ꤷ�ʤ����1�����Ѥ���ޤ���
--<LOGICAL_JOB_NAME_LIST> �ϡ����Υ���֤��¹Ԥ򳫻Ϥ������˽�λ���Ƥ���٤�����֤����������̾������⤷���ϰ����ꥹ�ȤǤ���
--<LOGICAL_FILE_NAME_LIST> �Ϥ��Υ���֤����Ѥ���ե�����������ե�����̾������⤷���ϰ����ꥹ�ȤǤ������Υ���֤��ޤॿ����������ǡ�'refersTo'�ˤ��ե����뤬���ꤵ��Ƥ���С����Υե�����ϼ�ưŪ�ˤ�������⤷���ϰ����ꥹ�Ȥ˲ä����ޤ���
--<LOGICAL_TASK_NAME_LIST> �ϡ����Υ���֤��ޤॿ����������������̾������⤷���ϰ����ꥹ�ȤǤ���
--<ART_COND_MAP_HASH>�ϡ�����ART̾��ART�������Ȥ��б�����ꤹ��ϥå���Ǥ���
---�ϥå���Υ���������ART̾�Ǥ���
---�ϥå�����ͤ�ART���Ǥ����� ART��� �ϡ�����ܥ�(':eq', ':min', ':max')�����������Ȥ��б�����ꤹ��ϥå���Ǥ���
+投入されるジョブの定義は図13のように記述します。
+-<MAIL_ADDRESS> は、ジョブの状態が変化したときの通知先メールアドレスを指定します。
+-<TASKS_MUST_START_SIMULTANEOUSLY> は複数のタスクが同時に起動すべきか否かを指定します。
+--'true'なら同時に起動します。
+--'false' なら同時には起動しません。
+--指定しなければ'true'が採用されます。
+-<MINIMUM_TASK_COUNT> は、同時に起動するタスクの最小数を指定します。
+--何も指定しなければ1が採用されます。
+-<LOGICAL_JOB_NAME_LIST> は、そのジョブが実行を開始する前に終了しているべきジョブの論理ジョブ名の配列もしくは引数リストです。
+-<LOGICAL_FILE_NAME_LIST> はそのジョブが使用するファイルの論理ファイル名の配列もしくは引数リストです。このジョブが含むタスクの定義で、'refersTo'によりファイルが指定されていれば、そのファイルは自動的にこの配列もしくは引数リストに加えられます。
+-<LOGICAL_TASK_NAME_LIST> は、このジョブが含むタスクの論理タスク名の配列もしくは引数リストです。
+-<ART_COND_MAP_HASH>は、論理ART名とARTスコアとの対応を指定するハッシュです。
+--ハッシュのキーは論理ART名です。
+--ハッシュの値はART条件です。各 ART条件 は、シンボル(':eq', ':min', ':max')と非負整数との対応を指定するハッシュです。
 
-* ����Ѥ�ART������ץ�
-���󥹥ȡ��뤷���ǥ��쥯�ȥ���ˤϰʲ���ART������ץȤ��Ѱդ���Ƥ��ޤ���
+* 定義済みARTスクリプト
+インストールしたディレクトリ内には以下のARTスクリプトが用意されています。
 
--ART������ץ� 'cpuclock' �� CPU�����å����ȿ�(MHz)��ART�������Ȥ��ƽ��Ϥ��ޤ���
--ART������ץ� 'cpumodel' �� CPU��ǥ�̾�򸡺����ޤ������ޥ�ɥ饤�������Ϳ����줿����ɽ����CPU��ǥ�̾�˥ޥå������1, �����Ǥʤ����0����Ϥ��ޤ���
--ART������ץ� 'executable' �� �ե����뤬�¹Բ�ǽ���ɤ����򸡺����ޤ������ޥ�ɥ饤�������Ϳ����줿�ե����뤬���Ƽ¹Բ�ǽ�ʤ�1, �����Ǥʤ����0����Ϥ��ޤ���
--ART������ץ� 'exist' �� �ե����뤬¸�ߤ��뤫�ɤ����򸡺����ޤ������ޥ�ɥ饤�������Ϳ����줿�ե����뤬¸�ߤ����1, �����Ǥʤ����0����Ϥ��ޤ���
--ART������ץ� 'gpumodel' �� GPU��ǥ�̾�򸡺����ޤ������ޥ�ɥ饤�������Ϳ����줿����ɽ����GPU��ǥ�̾�˥ޥå������1, �����Ǥʤ����0����Ϥ��ޤ���
--ART������ץ� 'hostname' �� �ۥ���̾�򸡺����ޤ������ޥ�ɥ饤�������Ϳ����줿����ɽ�����ۥ���̾�˥ޥå������1, �����Ǥʤ����0����Ϥ��ޤ���
--ART������ץ� 'loadavg' �� CPU����٤���Ϥ��ޤ���
--ART������ץ� 'macmodel' �� Mac�ε���̾�򸡺����ޤ������ޥ�ɥ饤�������Ϳ����줿����ɽ��������̾�˥ޥå������1, �����Ǥʤ����0����Ϥ��ޤ���
--ART������ץ� 'memsize' �� ���ꥵ����(MB)��ART�������Ȥ��ƽ��Ϥ��ޤ���
--ART������ץ� 'readable' �� �ե����뤬�ɤ߹��߲�ǽ���ɤ����򸡺����ޤ������ޥ�ɥ饤�������Ϳ����줿�ե����뤬�����ɤ߹���ǽ�ʤ�1, �����Ǥʤ����0����Ϥ��ޤ���
--ART������ץ� 'sysver' �� OS�ΥС������򸡺����ޤ������ޥ�ɥ饤�������Ϳ����줿����ɽ����OS�ΥС������̾�˥ޥå������1, �����Ǥʤ����0����Ϥ��ޤ���
+-ARTスクリプト 'cpuclock' は CPUクロック周波数(MHz)をARTスコアとして出力します。
+-ARTスクリプト 'cpumodel' は CPUモデル名を検査します。コマンドライン引数に与えられた正規表現がCPUモデル名にマッチすれば1, そうでなければ0を出力します。
+-ARTスクリプト 'executable' は ファイルが実行可能かどうかを検査します。コマンドライン引数に与えられたファイルが全て実行可能なら1, そうでなければ0を出力します。
+-ARTスクリプト 'exist' は ファイルが存在するかどうかを検査します。コマンドライン引数に与えられたファイルが存在すれば1, そうでなければ0を出力します。
+-ARTスクリプト 'gpumodel' は GPUモデル名を検査します。コマンドライン引数に与えられた正規表現がGPUモデル名にマッチすれば1, そうでなければ0を出力します。
+-ARTスクリプト 'hostname' は ホスト名を検査します。コマンドライン引数に与えられた正規表現がホスト名にマッチすれば1, そうでなければ0を出力します。
+-ARTスクリプト 'loadavg' は CPUの負荷を出力します。
+-ARTスクリプト 'macmodel' は Macの機種名を検査します。コマンドライン引数に与えられた正規表現が機種名にマッチすれば1, そうでなければ0を出力します。
+-ARTスクリプト 'memsize' は メモリサイズ(MB)をARTスコアとして出力します。
+-ARTスクリプト 'readable' は ファイルが読み込み可能かどうかを検査します。コマンドライン引数に与えられたファイルが全て読み込み能なら1, そうでなければ0を出力します。
+-ARTスクリプト 'sysver' は OSのバージョンを検査します。コマンドライン引数に与えられた正規表現がOSのバージョン名にマッチすれば1, そうでなければ0を出力します。
 
-* �Х���𡢤��ո��ʤ�
+* バグ報告、ご意見など
 
-�Х����䤴�ո��ʤɤϴ��ޤ������ޤ����⤷���Υ��եȥ������򸦵�Ǥ��Ȥ��ʤ顢����᡼��Ǥ��Τ餻����������
-�᡼�륢�ɥ쥹�ϰʲ����̤�Ǥ���
--tetsuya[at]sic.shibaura-it.ac.jp    ('[at]'��'@'���֤������Ƥ���������)
+バグ報告やご意見などは歓迎いたします。もしこのソフトウェアを研究でお使いなら、是非メールでお知らせください。
+メールアドレスは以下の通りです。
+-tetsuya[at]sic.shibaura-it.ac.jp    ('[at]'を'@'に置き換えてください。)
 
-* ��ʸ
+* 論文
 -[[Tetsuya SUZUKI and Kiyoto HAMANO. RuBLX: A RUBY-BASED BATCH LANGUAGE FOR XGRID. In Proceedings of 21st European Conference on Modelling and Simulation, pp.691-696, 2007.>http://www.scs-europe.net/conf/ecms2007/ecms2007-cd/ecms2007/ecms2007%20pdf/hpc_1016.pdf]]
 
-* ��Ϣ���
+* 関連リンク
 -[[Apple - Mac OS X - Xgrid>http://www.apple.com/macosx/features/xgrid/]]
 -[[PyXG = Python + Xgrid>http://pyxg.scipy.org/]]
 -[[GridStuffer>http://cmgm.stanford.edu/~cparnot/xgrid-stanford/html/goodies/GridStuffer-info.html]]

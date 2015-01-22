@@ -1,4 +1,4 @@
-ŽŸ‚ÌWebƒy[ƒW‚ðŽQÆ‚·‚é‚©A‚»‚Ìƒ\[ƒXƒtƒ@ƒCƒ‹‚Å‚ ‚é docs/README_jp.pukiwiki ‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+æ¬¡ã®Webãƒšãƒ¼ã‚¸ã‚’å‚ç…§ã™ã‚‹ã‹ã€ãã®ã‚½ãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«ã§ã‚ã‚‹ docs/README_jp.pukiwiki ã‚’å‚ç…§ã—ã¦ãã ã•ã„ã€‚
   http://www.tslab.se.shibaura-it.ac.jp/index.php/Software/rxgrid/jp
 
 
