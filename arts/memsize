@@ -1,0 +1,67 @@
+#!/usr/bin/ruby
+#
+# NAME
+#   memsize
+#
+# SYNOPSIS:
+#   From command line,
+#
+#     memsize
+#
+#   In batch files,
+#
+#     art <art_id> do
+#       localPathName 'memsize'
+#     end
+#
+# DESCRIPTION
+#   The 'memsize' puts the memory size in MB as the ART score to standard output.
+#
+#   For example, if the memory size is 2 GB, the 'memsize' executed from command line
+#   prints '2048'.
+#
+#     memsize
+#     2048
+#
+#   In the following case, the job 'job1' in a batch file will be executed on an Xgrid agent
+#   with 2048 MB memory.
+#
+#     art 'memsize' do
+#       localPathName 'memsize'
+#     end
+#
+#     job 'job1' do
+#       ...
+#       ...
+#       artConds 'memsize'=>{:eq=>2048}
+#     end
+#
+# AUTHOR
+#   Tetsuya SUZUKI <tetsuya[at]sic.shibaura-it.ac.jp> (Please replace '[at]' with '@')
+#
+#
+
+cmd = "/usr/sbin/system_profiler SPHardwareDataType"
+stdout = IO.popen(cmd)
+stdout.sync = true
+while line = stdout.gets
+  line.chomp!
+  if /Memory:\s*(\d*)\s*(.*)/ =~ line
+    value = $1
+    unit = $2
+    break
+  end
+end
+stdout.close
+
+if unit == "MB"
+  puts value
+  exit
+elsif unit == "GB"
+  puts value.to_i*1024
+  exit
+end
+puts 0
+
+  
+

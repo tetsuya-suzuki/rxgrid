@@ -1,0 +1,54 @@
+#!/usr/bin/ruby
+#
+# NAME
+#   exist
+#
+# SYNOPSIS:
+#   From command line,
+#
+#     exist [<filename_1> <filename_2> ... <filename_n>]
+#
+#   In batch files,
+#
+#     art <art_id> do
+#       localPathName 'exist'
+#       arguments <filename_1>, <filename_2>, ..., <filename_n>
+#     end
+#
+# DESCRIPTION
+#   The 'exist' checks if all of given file names exist or not.
+#   It puts the ART score 1 to standard output if all of them exist or 
+#   puts the ART score 0 otherwise. If no file name is given, it puts the ART score 1.
+#
+#   For example, if the file '/usr/bin/bc' exists, the 'exist' executed from command line
+#   with a command line argument '/usr/bin/bc' print '1' 
+#
+#     exist /usr/bin/bc
+#
+#   In the following case, the job 'job1' in a batch file will be executed on an Xgrid agent
+#   if the file '/usr/bin/bc' exists on the agent.
+#
+#     art 'bcIsInstalled' do
+#       localPathName 'exist'
+#       arguments '/usr/bin/bc'
+#     end
+#
+#     job 'job1' do
+#       ...
+#       ...
+#       arts 'bcIsInstalled'
+#     end
+#
+# AUTHOR
+#   Tetsuya SUZUKI <tetsuya[at]sic.shibaura-it.ac.jp> (Please replace '[at]' with '@')
+#
+#
+
+ARGV.each {|f|
+  if !File.exist?(f)
+    puts 0
+    exit
+  end
+}
+
+puts 1

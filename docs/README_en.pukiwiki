@@ -1,0 +1,394 @@
+[[日本語のページはこちらです。>Software/rxgrid/jp]]
+
+The rxgrid is an Xgrid client program for the language called RuBLX, 
+which stands for a Ruby-based batch language for Xgrid.
+Xgrid is an environment for distributed and parallel computing on the Mac OS X operating system, and Ruby is an object-oriented programming language for general purposes.
+
+rxgrid enable users to 
+-submit Xgrid jobs specified not in the standard XML-based batch files but in Ruby-based concise batch files.
+-manage them not by job IDs but by their logical names.
+-execute ART scripts with command line arguments.
+
+The rest of this page organizes as follows.
+#contents
+
+This page assumes that readers are familiar with the standard XML-based batch language for Xgrid, the standard client program xgrid and the basic of Ruby. 
+
+* rxgrid : An Xgrid client program  for RuBLX
+**License
+rxgrid is distributed under [[the GNU General Public License (GPL) version 2>http://www.gnu.org/licenses/gpl.txt]]. 
+
+** New features and change from the previous version
+-ART is supported. ART scripts can be executed with command line arguments. It will make ART scripts more reusable.
+-A slightly simplified syntax for batch files is available. The brackets '[' and ']' surrounding parameter lists can be omitted.
+
+**Installation
+
++Download an archive file 'rxgrid_v1_0_0.zip' from the following link to your Xgrid client machine.
+--[[rxgrid Ver. 1.0.0 (May 13, 2010)>http://www.tslab.se.shibaura-it.ac.jp/downloads/rxgrid/rxgrid_v1_0_0.zip]]
++Unzip it.
+ % unzip rxgrid_v1_0_0.zip
++Copy the directory 'rxgrid_v1_0_0' into an appropriate directory. In the following example, the directory is copied into /usr/local/ .
+ % sudo cp -r rxgrid_v1_0_0 /usr/local/
++Update the command search path to your command search path if needed.
+If you use csh or tcsh, it would be better to add a line like the following into ~/.cshrc .
+  setenv PATH $PATH:/usr/local/rxgrid_v1_0_0/bin
+If you use bash, it would be better to add a line like the following into ~/.bash_profile .
+  PATH=$PATH:/usr/local/rxgrid_v1_0_0/bin
+
+**Usage
+ rxgrid [-h[ostname] hostname] [-auth { Password | Kerberos }]
+       [-p[assword] password] [-xgrid xgrid-command]
+ rxgrid [-nosubmission] [-createbatchfiles] -job batch [-gid grid-identifier]
+           [-map mapfile] [-I directory] RuBLX-batch-file
+ rxgrid -job results [-map mapfile] [-id identifier] [-so stdout] [-se stderr] [-out outdir]
+ rxgrid -job {stop | suspend | resume | delete | specification | restart}
+          [-map mapfile] [-id identifier]
+ rxgrid -job list [-gid grid-identifier]
+ rxgrid -job attributes [-map mapfile] [-id identifier]
+ rxgrid -version
+ rxgrid -help
+
+The options are basically compatible with those of xgrid.
+-The '-xgrid' option specifies a command used by rxgrid instead of xgrid.
+--It can be specified by the environment variable 'RXGRID_XGRID'.
+-The '-nosubmission' option means 'do not submit'.
+-The '-createbatchfiles' option means 'create XML-based batch files'.
+-The '-map' option specifies a map file. 
+--The '-map' option with '-job batch' specifies a map file name to be generated.
+- The '-I' option adds ART script search paths. The environment variable 'RXGRID_ART_PATH' also adds ART script search paths. In both cases, the path delimiter is ':'.
+-- ART scripts are searched in the following order: (1) the paths specified by '-I' (2) the paths specified by the environment variable 'RXGRID_ART_PATH' (3) The ART scripts installed with the rxgrid command, and (4) the current directory.
+-The '-id' option
+--The '-id' option with '-map' option specifies a logical job name in the map file.
+--The '-id' option without '-map' option specifies a job ID number.
+-At least either the '-id' option or the '-map' option must be specified for the '-job  results' and the '-job attributes'. 
+
+* Examples
+The following are examples of batch files. See also examples in the installed directory.
+ 
+** Example 1
+Fig.1 shows a batch file with a job which executes a calculator program '/usr/bin/bc' to evaluate an expression described in a script file 'bc_exp.txt' of Fig.2. 
+
+// Fig.1 
+ 01: file "bc_exp.txt" do 
+ 02:   agentPathName  "bc_exp.txt"
+ 03:   localPathName  "bc_exp.txt"
+ 04:   isExecutable  false
+ 05: end
+ 06: 
+ 07: task "bc" do 
+ 08:   command  "/usr/bin/bc"
+ 09:   arguments "-q", "bc_exp.txt"
+ 10:   refersTo  "bc_exp.txt"
+ 11: end
+ 12: 
+ 13: job "job1" do 
+ 14:   tasks  "bc"
+ 15: end
+ 
+           Fig.1: An RuBLX batch file 'bc.rb'
+
+// Fig.2
+ 01: 1 + 2
+ 02: quit
+ 
+           Fig.2: A script 'bc_exp.txt' for a calculator program 'bc' 
+ 
+
+// Fig.3 
+ % rxgrid -h xgridcontroller -p pass -job batch bc.rb
+ 
+           Fig.3:  Job submission by rxgrid
+
+Fig.3 shows how to submit the batch file of Fig.1 using rxgrid. The options of rxgrid are basically compatible with those of xgrid.
+
+// Fig.4 
+ 01: 381,job1
+ 
+           Fig.4: A generated map file 'bc_map.csv'
+ 
+The rxgrid command generates a map file at submission. It is a file which records correspondence between job IDs and their logical names. Fig.4 shows a map file which indicates that  the job ID of the submitted job 'job1' is 381.
+
+ Case(1) 
+ % rxgrid -h xgridcontroller -p pass -job results -id job1 -map bc_map.csv
+ 
+ Case(2) 
+ % rxgrid -h xgridcontroller -p pass -job results -map bc_map.csv
+ 
+ Case(3) 
+ % rxgrid -h xgridcontroller -p pass -job results -id 381
+ 
+           Fig.5: Retrieval of the results 
+
+The three cases of Fig. 5 show how to retrieve the results of finished jobs.  To retrieve the results, at least one of '-id' and '-map' are required.
+-In the case (1), a job whose result is retrieved is specified by both '-id' and '-map'. 
+-If '-id' is not specified as the case(2), the results of all jobs in a specified map file are retrieved. 
+-If '-map' is not specified as the case(3), the result of the job with a specified id is retrieved. 
+
+
+** Example 2
+
+Fig.6 shows a batch file whose jobs have dependency relationships each other.
+Three jobs 'job0', 'job1' and 'job2' are defined there.
+-The 'job0' is a previously submitted job whose id is specified by a pair of a logical job name and a map file in the line 12.
+-The 'job1' is a job with a task 'echo1'.
+-The 'job2' is a job with a task 'echo2' which is executed after two jobs 'job0' and 'job1' are done. The dependency is defined in the line 21.
+
+ 01: task "echo1" do 
+ 02:   command  "/bin/echo"
+ 03:   arguments "1"
+ 04: end
+ 05: 
+ 06: task "echo2" do 
+ 07:   command  "/bin/echo"
+ 08:   arguments "2"
+ 09: end
+ 10: 
+ 11: job "job0" do 
+ 12:   id  jobId("job1", "bc_map.csv") 
+ 13: end
+ 14: 
+ 15: job "job1" do 
+ 16:   tasks "echo1"
+ 17: end
+ 18: 
+ 19: job "job2" do 
+ 20:   tasks "echo2"
+ 21:   dependsOnJobs "job0", "job1"
+ 22: end
+ 
+           Fig.6: An RuBLX batch file with dependency relationships among jobs
+
+** Example 3
+
+Fig.7 shows a batch file whose tasks are dynamically determined at submission. A task is defined for each file whose name ends with '.txt'. The task executes the calculator program 'bc' to evaluate the file.
+
+In this example, variables, arrays, control-flow and a standard Ruby library are used because it is not known how many files will exist at submission.
+-The files are collected by a standard library 'Dir' in the line 1.
+-A file template is used from the line 4 to the line 8.
+-A task template is used from the line 16 to the line 20.
+
+
+ 01: filelist = Dir.glob("*.txt")
+ 02: 
+ 03: filelist.each do |f|
+ 04:   file f.to_s do 
+ 05:     agentPathName  f.to_s
+ 06:     localPathName  f.to_s
+ 07:     isExecutable  false
+ 08:   end
+ 10: end
+ 11: 
+ 12: taskNames = []
+ 13: filelist.each do |f|
+ 14:   taskName = "bc" + f.to_s
+ 15:   taskNames = taskNames | [taskName]
+ 16:   task taskName do 
+ 17:     command  "/usr/bin/bc"
+ 18:     arguments "-q", f.to_s
+ 19:     refersTo  f.to_s
+ 20:   end
+ 21: end
+ 22:   
+ 23: job "job1" do 
+ 24:   tasks  taskNames
+ 25: end
+ 
+          Fig.7: An RuBLX batch file with dynamically defined tasks
+
+** Example 4
+Fig.8 shows a batch file with ART script specifications.
+-A pair of an ART script which checks the model name and command line arguments is defined from the line 1 to the line 4. It enables to check if the model name starts with "Mac mini".
+--"modelname" is the ART script in the installed directory.
+--A regular expression "^Mac mini" is the command line argument for the ART script.
+-The ART script which outputs the memory size is specified from the line 6 to the line 8.
+--"memsize" is the ART script in the installed directory.
+-An ART condition is specified from the line 22 to the line 26.
+The conditions are that the model name must start with "Mac mini" and that the memory size must be at least 1024 MB.
+
+Though the installed ART scripts are specified in this example, your original ART scripts can be also specified in batch files.
+
+ 01: art "onMacmini" do
+ 02:   localPathName "macmodel"
+ 03:   arguments "^Mac mini"
+ 04: end
+ 05: 
+ 06: art "memsize" do
+ 07:   localPathName "memsize"
+ 08: end
+ 09: 
+ 10: file "bc_exp1.txt" do
+ 11:  localPathName "bc_exp1.txt"
+ 12:  agentPathName "bc_exp1.txt"
+ 13:  isExecutable false
+ 14: end
+ 15:
+ 16: task "bc" do
+ 17:   command "/usr/bin/bc"
+ 18:   arguments "-q", "bc_exp1.txt"
+ 19:   refersTo "bc_exp1.txt"
+ 20: end
+ 21: 
+ 22: job "job1" do 
+ 23:   tasks "bc"
+ 24:   arts "onMacmini"
+ 25:   artConds "memsize"=>{:min=>1024}
+ 26: end
+ 
+          Fig.8: An RuBLX batch file with ART script specifications
+
+* RuBLX : A Ruby-based Batch Language for Xgrid
+
+A batch file includes
+-one or more job definitions, one or more task definitions and zero or more file definitions.
+-any Ruby code anywhere.
+
+The order of definitions is not significant.
+
+Fig.9, Fig.10, Fig.11, Fig.12 and Fig.13 show the syntax of RuBLX.
+-Non terminal symbols are enclosed with '<' and '>'.
+-A pair of parenthesises followed by a question mark '(X)?' means that X is optional.
+-A pair of parenthesises followed by an asterisk '(X)*' means that X occurs 0 or more times.
+-A pair of parenthesises with a vertical bar between them '(X|Y)' means that X or Y.
+-The order of specifications in a do-end block of each definition is not significant.
+
+**ART file definition
+ art <LOGICAL_ART_NAME> do 
+   ( localPathName  <PATH_ON_LOCAL> | contents <STRING> )
+   ( arguments  <COMMAND_ARGUMENT_LIST> ) ? 
+ end 
+ 
+           Fig.9:  The syntax of an ART file definition
+
+The syntax of Fig.9 is for an ART file definition.
+-<LOGICAL_ART_NAME> is a logical ART name.
+-The contents of the ART file is specified either by <PATH_ON_LOCAL> or by <STRING>.
+--<PATH_ON_LOCAL> specifies the contents by a local file path.
+--- If the path is absolute, the contents is the file specified by the absolute path.
+--- If the path is relative, the file is searched from the current directory and the installed ART script directory in this order. 
+--<STRING> specifies the contents by a string.
+-<COMMAND_ARGUMENT_LIST> specifies the command line arguments by an array or an argument list.
+
+
+**File definition
+ file <LOGICAL_FILE_NAME> do 
+     agentPathName  <PATH_ON_AGENT> 
+   ( localPathName  <PATH_ON_LOCAL> | contents <STRING> )
+   ( isExecutable  <EXECUTABLE> ) ? 
+ end 
+ 
+           Fig.10:  The syntax of a file definition
+
+The syntax of Fig.10 is for a file definition.
+-<LOGICAL_FILE_NAME> is a logical file name.
+-<PATH_ON_AGENT> specifies a path of the file on an agent.
+-The contents of the file is specified either by <PATH_ON_LOCAL> or by <STRING>.
+--<PATH_ON_LOCAL> specifies the contents by a local file path.
+--<STRING> specifies the contents by a string.
+--<EXECUTABLE> is either true or false.
+
+**Task definition
+ task <LOGICAL_TASK_NAME> do 
+      command  <PATH_OF_COMMAND> 
+    ( arguments  <COMMAND_ARGUMENT_LIST> ) ? 
+    ( environment  <ENVIRONMENT_HASH> ) ? 
+    ( inputStream  <LOGICAL_FILE_NAME> ) ? 
+    ( dependsOn  <LOGICAL_TASK_NAME_LIST> ) ? 
+    ( refersTo  <LOGICAL_FILE_NAME_LIST> ) ? 
+    ( inputFileMap  <INPUT_FILE_MAP_HASH> ) ? 
+ end 
+ 
+          Fig.11: The syntax of a task definition
+
+The syntax of Fig.11 is for a task definition.
+-<LOGICAL_TASK_NAME> is a logical task name.
+-<PATH_OF_COMMAND> specifies a path of the command.
+-<COMMAND_ARGUMENT_LIST> specifies the command line arguments by an array or an argument list.
+-<ENVIRONMENT_HASH> specifies environment variables by a hash.
+--The keys are names of environment variables.
+--The values are values of the variables.
+-<LOGICAL_FILE_NAME> specifies standard input by a path of a local file.
+-<LOGICAL_TASK_NAME_LIST> specifies tasks which the task depends on by an array or an argument list.
+-<LOGICAL_FILE_NAME_LIST> specifies a list of logical file name which the task will read by an array or an argument list.
+-<INPUT_FILE_MAP_HASH> specifies the correspondence between file paths on agents and the contents for this task only by a hash.
+--The keys are file paths.
+--The values are logical file names.
+
+**Job definition
+ job <LOGICAL_JOB_NAME>  do 
+    id  ( <PREVIOUSLY_SUBMITTED_JOB_ID> | 
+            jobId( <LOGICAL_JOB_NAME> , <MAP_FILE_PATH> ) ) 
+ end 
+ 
+          Fig.12: The syntax of a job definition (case 1)
+
+The syntax of Fig.12 is for a definition of a previously submitted job.
+-<LOGICAL_JOB_NAME> is a logical job name.
+-A previously submitted job's ID is specified either 
+--by a job ID <PREVIOUSLY_SUBMITTED_JOB_ID> or
+--by a pair of a logical job name <LOGICAL_JOB_NAME> and a map file <MAP_FILE_PATH>.
+
+ job <LOGICAL_JOB_NAME>  do 
+    ( mail  <MAIL_ADDRESS> ) ? 
+    ( tasksMustStartSimultaneously  <TASKS_MUST_START_SIMULTANEOUSLY> ) ? 
+    ( minimumTaskCount  <MINIMUM_TASK_COUNT> ) ? 
+    ( dependsOnJobs  <LOGICAL_JOB_NAME_LIST> ) ? 
+    ( files  <LOGICAL_FILE_NAME_LIST> ) ? 
+      tasks  <LOGICAL_TASK_NAME_LIST> 
+    ( arts   <LOGICAL_ART_NAME_LIST> )*
+    ( artConds <ART_COND_MAP_HASH> )*
+ end 
+ 
+           Fig.13: The syntax of a job definition (case 2)
+
+The syntax of Fig.13 is for a definition of a job to be submitted.
+-<MAIL_ADDRESS> specifies an e-mail address to which an e-mail is sent when the job's status is changed.
+-<TASKS_MUST_START_SIMULTANEOUSLY> specifies whether tasks must start simultaneously or not by a boolean value.
+--'true' is for yes. 
+--'false' is for no.
+--The default value is 'true'.
+-<MINIMUM_TASK_COUNT> specifies the minimum task number which need to start at the same time.
+--The default value is 1.
+-<LOGICAL_JOB_NAME_LIST> specifies logical job names which the job depends on by an array or an argument list.
+-<LOGICAL_FILE_NAME_LIST> specifies logical file names used in the job by an array or an argument list.
+-<LOGICAL_TASK_NAME_LIST> specifies logical task names in the job by an array or an argument list.
+-<LOGICAL_ART_NAME_LIST> specifies logical ART names used in the job by an array or an argument list.
+-<ART_COND_MAP_HASH> specifies the correspondence between logical ART names and ART conditions by a hash
+--The keys are logical ART names.
+--The values are ART conditions. Each ART condition is a hash which represents a map from symbols (':eq', ':min' and ':max') to non negative values.
+
+* Predefined ART scripts
+The following are predefined ART scripts in the installed directory.
+
+-The ART script 'cpuclock' puts CPU clock in MHz as the ART score.
+-The ART script 'cpumodel' checks CPU model names. It puts 1 as the ART score if the CPU model name matches with a regular expression given as an command line argument, or puts 0 otherwise.
+-The ART script 'executable' checks if files are executable or not. It puts 1 as the ART score if all of given files as command line arguments are executable, or puts 0 otherwise.
+-The ART script 'exist' checks if files exist or not. It puts 1 as the ART score if all of given files as command line arguments exist, or puts 0 otherwise.
+-The ART script 'gpumodel' checks GPU model names. It puts 1 as the ART score if the GPU model name matches with a regular expression given as an command line argument, or puts 0 otherwise.
+-The ART script 'hostname' checks host names. It puts 1 as the ART score if the host name matches with a regular expression given as an command line argument, or puts 0 otherwise.
+-The ART script 'loadavg' puts load averages.
+-The ART script 'macmodel' checks Mac model names. It puts 1 as the ART score if the Mac model name matches with a regular expression given as an command line argument, or puts 0 otherwise.
+-The ART script 'memsize' puts memory size in MB.
+-The ART script 'readable' checks if files are readable or not. It puts 1 as the ART score if all of given files as command line arguments are readable, or puts 0 otherwise.
+-The ART script 'sysver' checks system versions (OS versions). It puts 1 as the ART score if the system version matches with a regular expression given as an command line argument, or puts 0 otherwise.
+
+* Bug reports and feedback
+
+Bug reports and feedback are welcome. If you use this program in your research,
+please let me know by email. The following is my email address.
+-tetsuya[at]sic.shibaura-it.ac.jp    (Please replace '[at]' with '@')
+
+* Paper
+-[[Tetsuya SUZUKI and Kiyoto HAMANO. RuBLX: A RUBY-BASED BATCH LANGUAGE FOR XGRID. In Proceedings of 21st European Conference on Modelling and Simulation, pp.691-696, 2007.>http://www.scs-europe.net/conf/ecms2007/ecms2007-cd/ecms2007/ecms2007%20pdf/hpc_1016.pdf]]
+
+* Related Links
+-[[Apple - Mac OS X - Xgrid>http://www.apple.com/macosx/features/xgrid/]]
+-[[PyXG = Python + Xgrid>http://pyxg.scipy.org/]]
+-[[GridStuffer>http://cmgm.stanford.edu/~cparnot/xgrid-stanford/html/goodies/GridStuffer-info.html]]
+-The Xgrid Tutorials on [[MacResearch>http://www.macresearch.org/]]
+--[[The Xgrid Tutorials (Part I): Xgrid Basics>http://www.macresearch.org/the_xgrid_tutorials_part_i_xgrid_basics]]
+--[[The Xgrid Tutorials (Part II): GridStuffer Basics>http://www.macresearch.org/the_xgrid_tutorials_part_ii_gridstuffer_basics]]
+--[[The Xgrid Tutorials (Part III): Running Batch Jobs>http://www.macresearch.org/the_xgrid_tutorials_part_iii_running_batch_jobs]]
+--[[The Xgrid Tutorials (Part IV): Submit Jobs with Ruby>http://macresearch.org/the_xgrid_tutorials_part_iv_submit_jobs_with_ruby]]
+-[[Xgrid Batch Editor>http://kellerfarm.com/kfsproducts/yesfree/xgridbatcheditor/index.html]]
+-[[Xgrid.rb>http://www.dcs.st-and.ac.uk/~jm/xgrid/]]

@@ -1,0 +1,68 @@
+#!/usr/bin/ruby
+#
+# NAME
+#   cpumodel
+#
+# SYNOPSIS:
+#   From command line,
+#
+#     cpumodel [<regular_expression>]
+#
+#   In batch files,
+#
+#     art <art_id> do
+#       localPathName 'cpumodel'
+#       arguments <regular_expression>
+#     end
+#
+# DESCRIPTION
+#   The 'cpumodel' checks if a given Ruby's regular expression <regular_expression> matches
+#   with the CPU model name of the host on which the 'cpumodel' runs or not.
+#   It puts the ART score 1 to standard output if <regular_expression> matches with the CPU model 
+#   name or puts the ART score 0 otherwise.
+#
+#   If you want to know the CPU model name of your machine, run 'cpumodel' without 
+#   any command line argument. It will print the CPU model name.
+#
+#   For example, it prints '1' if the CPU model name starts with 'Intel' or puts '0' otherwise.
+#
+#     cpumodel '^Intel'
+#
+#   In the following case, the job 'job1' in a batch file will be executed on an Xgrid agent
+#   whose CPU model name starts with 'Intel' such as 'Intel Core 2 Duo'.
+#  
+#     art 'withIntelCPU' do
+#       localPathName 'cpumodel'
+#       arguments '^Intel'
+#     end
+#
+#     job 'job1' do
+#       ...
+#       ...
+#       arts 'withIntelCPU'
+#     end
+#
+# AUTHOR
+#   Tetsuya SUZUKI <tetsuya[at]sic.shibaura-it.ac.jp> (Please replace '[at]' with '@')
+#
+#
+
+cmd = "/usr/sbin/system_profiler SPHardwareDataType"
+stdout = IO.popen(cmd)
+stdout.sync = true
+while line = stdout.gets
+  line.chomp!
+  if /Processor Name:\s*(.*)/ =~ line
+    modelName = $1
+    break
+  end
+end
+stdout.close
+
+if ARGV.size == 0
+  puts modelName
+elsif /#{ARGV[0]}/ =~ modelName
+  puts 1
+else
+  puts 0
+end
